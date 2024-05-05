@@ -1,0 +1,26 @@
+[
+  {
+    "model": "catalog.category",
+    "pk": 5,
+    "fields": {
+      "name": "яблоки",
+      "description": "шаровидный съедобный плод яблони, листопадного дерева семейства Розовые"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 6,
+    "fields": {
+      "name": "ягоды",
+      "description": null
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 7,
+    "fields": {
+      "name": "груши",
+      "description": null
+    }
+  }
+]
