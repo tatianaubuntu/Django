@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def json_read_categories():
-        with open('fixture/category_data.json') as f:
+        with open('fixture/category_data.json', encoding="utf-8") as f:
             json_data = json.load(f)
             categories = []
             for data in json_data:
@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def json_read_products():
-        with open('fixture/product_data.json') as f:
+        with open('fixture/product_data.json', encoding="utf-8") as f:
             json_data = json.load(f)
             products = []
             for data in json_data:
