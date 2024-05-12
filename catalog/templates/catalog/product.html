@@ -1,20 +1,27 @@
 {% extends 'catalog/base.html' %}
+{% load image_filter %}
 {% block content %}
-<div class="row text-center">
-    {% for object in object_list %}
-    <div class="col-6">
-        <div class="card h-100 mb-4 box-shadow">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">{{ object }}</h4>
-            </div>
-            <div class="card-body">
-                <h1 class="card-title pricing-card-title">{{ object.price }} руб.</h1>
-                <ul class="list-unstyled mt-3 mb-4 text-start m-3">
-                    <li>{{ object.description }}</li>
-                </ul>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-</div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">{{ object_list.name|title }}</th>
+      <th scope="col">О продукте</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row"></th>
+      <td><img class="card-img-top" src="{{ object_list.image| mymedia }}" ></td>
+
+    </tr>
+    <tr>
+      <th scope="row">2</th>
+      <td>Jacob</td>
+    </tr>
+    <tr>
+      <th scope="row">3</th>
+      <td colspan="2">Larry the Bird</td>
+    </tr>
+  </tbody>
+</table>
 {% endblock %}

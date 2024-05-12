@@ -12,14 +12,15 @@
         <div class="col-4">
             <div class="card h-100 mb-4 box-shadow">
                 <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">{{ object }}</h4>
+                    <h4 class="my-0 font-weight-normal">{{ object|title }}</h4>
                 </div>
                 <div class="card-body">
                     <h1 class="card-title pricing-card-title">{{ object.price }} руб.</h1>
                     <ul class="list-unstyled mt-3 mb-4 text-start m-3">
                         <li>{{ object.description|truncatechars:100 }}</li>
                     </ul>
-                    <a class="btn btn-outline-primary" href="/product/<int:pk>">Открыть</a>
+                    <a href="{% url 'catalog:product' object.pk %}" type="button"
+                       class="p-2 btn btn-outline-primary">Открыть</a>
                 </div>
             </div>
         </div>
