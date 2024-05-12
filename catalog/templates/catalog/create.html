@@ -1,0 +1,15 @@
+{% extends 'catalog/base.html' %}
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Skystore</h1>
+    <p class="lead">Форма по добавлению продукта</p>
+</div>
+<div class="input-group mx-auto p-2">
+    <form method="post" style="text-align:center">
+        {% csrf_token %}
+        {{ form }}<br>
+        <span>{{ error }} </span>
+        <button class="p-2 btn btn-outline-primary" type="submit">добавить продукт</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,13 +1,19 @@
-from django.shortcuts import render
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect
 
+from catalog.forms import ArticlesForm
 from catalog.models import Product
 
 
 def home(request):
     products_list = Product.objects.all()
+    paginator = Paginator(products_list, 3)
+    page_num = request.GET.get('page')
+    page_obj = paginator.get_page(page_num)
     context = {
-        'object_list': products_list
+        'page_obj': page_obj,
     }
+
     return render(request, 'catalog/home.html', context)
 
 
@@ -23,7 +29,24 @@ def contact(request):
 def product(request, pk):
     prod = Product.objects.get(pk=pk)
     context = {
-        'object_list': prod
+        'object_list': prod,
     }
 
     return render(request, 'catalog/product.html', context)
+
+
+def create(request):
+    error = ''
+    if request.method == 'POST':
+        form = ArticlesForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('catalog:home')
+        else:
+            error = 'Форма заполнена неверно'
+    form = ArticlesForm()
+    context = {
+        'form': form,
+        'error': error
+    }
+    return render(request, 'catalog/create.html', context)
