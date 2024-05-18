@@ -5,10 +5,9 @@
     <p class="lead">Форма по добавлению продукта</p>
 </div>
 <div class="input-group mx-auto p-2">
-    <form method="post" style="text-align:center">
+    <form method="post" style="text-align:center" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form }}<br>
-        <span>{{ error }} </span>
+        {{ form.as_p }}<br>
         <button class="p-2 btn btn-outline-primary" type="submit">добавить продукт</button>
     </form>
 </div>

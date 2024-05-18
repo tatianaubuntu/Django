@@ -4,35 +4,35 @@
 <table class="table">
     <thead>
     <tr>
-        <th scope="col">{{ object_list.name|title }}</th>
+        <th scope="col">{{ object.name|title }}</th>
         <th scope="col"></th>
     </tr>
     </thead>
     <tbody>
     <tr>
         <th scope="row"></th>
-        <td><img class="img-fluid" width="20%" src="{{ object_list.image|mymedia }}"></td>
+        <td><img class="img-fluid" width="20%" src="{{ object.image|mymedia }}"></td>
 
     </tr>
     <tr>
         <th scope="row">Описание:</th>
-        <td>{{ object_list.description }}</td>
+        <td>{{ object.description }}</td>
     </tr>
     <tr>
         <th scope="row">Категория:</th>
-        <td colspan="2">{{ object_list.category|title }}</td>
+        <td colspan="2">{{ object.category|title }}</td>
     </tr>
     <tr>
         <th scope="row">Цена:</th>
-        <td colspan="2">{{ object_list.price }} руб.</td>
+        <td colspan="2">{{ object.price }} руб.</td>
     </tr>
     <tr>
         <th scope="row">дата создания:</th>
-        <td colspan="2">{{ object_list.created_at }}</td>
+        <td colspan="2">{{ object.created_at }}</td>
     </tr>
     <tr>
         <th scope="row">дата последнего изменения:</th>
-        <td colspan="2">{{ object_list.updated_at }}</td>
+        <td colspan="2">{{ object.updated_at }}</td>
     </tr>
     </tbody>
 </table>

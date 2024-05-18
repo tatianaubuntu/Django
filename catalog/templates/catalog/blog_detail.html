@@ -1,0 +1,35 @@
+{% extends 'catalog/base.html' %}
+{% load image_filter %}
+{% block content %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col" colspan="2">{{ object|title }} ({{ object.slug }})</th>
+        <th scope="col"></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <th scope="row"></th>
+        <td><img class="img-fluid" width="20%" src="{{ object.preview|mymedia }}"></td>
+
+    </tr>
+    <tr>
+        <th scope="row">Содержание:</th>
+        <td>{{ object.body }}</td>
+    </tr>
+    <tr>
+        <th scope="row">дата создания:</th>
+        <td colspan="2">{{ object.created_at }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Статус публикации:</th>
+        <td colspan="2">{{ object.is_published }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Количество просмотров:</th>
+        <td colspan="2">{{ object.views_count }}</td>
+    </tr>
+    </tbody>
+</table>
+{% endblock %}
