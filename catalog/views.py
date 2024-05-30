@@ -48,7 +48,6 @@ class ProductDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product = self.get_object()
-
         try:
             version = Version.objects.get(product=product, is_active=True)
         except Version.DoesNotExist:
@@ -167,4 +166,3 @@ class BlogUpdateView(UpdateView):
 class BlogDeleteView(DeleteView):
     model = Blog
     success_url = reverse_lazy('catalog:blogs')
-
