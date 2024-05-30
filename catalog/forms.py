@@ -57,10 +57,10 @@ class VersionForm(ModelForm):
         model = Version
         fields = '__all__'
 
-    def clean_is_active(self):
-        cleaned_data = self.cleaned_data.get('is_active')
-        version = Version.objects.filter(is_active=True).first()
-        if cleaned_data == version.is_active:
-            raise forms.ValidationError('Активная версия уже существует')
-
-        return cleaned_data
+    # def clean_is_active(self):
+    #     cleaned_data = self.cleaned_data.get('is_active')
+    #     version = Version.objects.filter(is_active=True).first()
+    #     if cleaned_data == version.is_active:
+    #         raise forms.ValidationError('Активная версия уже существует')
+    #
+    #     return cleaned_data
