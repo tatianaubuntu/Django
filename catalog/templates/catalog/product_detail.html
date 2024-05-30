@@ -1,7 +1,7 @@
 {% extends 'catalog/base.html' %}
 {% load image_filter %}
 {% block content %}
-<table class="table">
+<table class="table" >
     <thead>
     <tr>
         <th scope="col">{{ object.name|title }}</th>
@@ -27,13 +27,26 @@
         <td colspan="2">{{ object.price }} руб.</td>
     </tr>
     <tr>
-        <th scope="row">дата создания:</th>
+        <th scope="row">Дата создания:</th>
         <td colspan="2">{{ object.created_at }}</td>
     </tr>
     <tr>
-        <th scope="row">дата последнего изменения:</th>
+        <th scope="row">Дата последнего изменения:</th>
         <td colspan="2">{{ object.updated_at }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Версия:</th>
+        {% for version_item in product.version_set.all %}
+        {% if version_item.is_active == True %}
+            <td colspan="2">{{ version_item.version_num}}</td>
+            <td class="table-success" colspan="2"> активна </td>
+        {% endif %}
+        {% endfor %}
     </tr>
     </tbody>
 </table>
+<a href="{% url 'catalog:product_update' object.pk %}" type="button"
+   class="p-2 btn btn-outline-primary">Редактировать</a>
+<a href="{% url 'catalog:product_delete' object.pk %}" type="button"
+   class="p-2 btn btn-outline-danger">Удалить</a>
 {% endblock %}

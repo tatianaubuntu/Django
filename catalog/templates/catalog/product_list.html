@@ -19,6 +19,11 @@
                     <ul class="list-unstyled mt-3 mb-4 text-start m-3">
                         <li>{{ prod.description|truncatechars:100 }}</li>
                     </ul>
+                    {% for version_item in product.version_set.all %}
+                    <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>{{ version_item.version_num }}</li>
+                    </ul>
+                    {% endfor %}
                     <a href="{% url 'catalog:product' prod.pk %}" type="button"
                        class="p-2 btn btn-outline-primary">Открыть</a>
                 </div>
