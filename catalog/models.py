@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 NULLABLE = {'null': True, 'blank': True}
@@ -63,3 +64,11 @@ class Version(models.Model):
     class Meta:
         verbose_name = 'версия'
         verbose_name_plural = 'версии'
+
+    # def clean(self):
+    #     if self.is_active and Version.objects.filter(product=self.product, is_active=True).exists():
+    #         raise ValidationError('Only one active version is allowed per product.')
+    #
+    # def save(self, *args, **kwargs):
+    #     self.clean()
+    #     super().save(*args, **kwargs)
