@@ -2,7 +2,7 @@ from django.forms import inlineformset_factory
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 
-from catalog.forms import ProductForm, VersionForm
+from catalog.forms import ProductForm, VersionForm, BaseVersionInlineFormSet
 from catalog.models import Product, Blog, Version
 from pytils.translit import slugify
 
@@ -65,7 +65,7 @@ class ProductCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
-                                               extra=1)
+                                               formset=BaseVersionInlineFormSet, extra=1)
         if self.request.method == 'POST':
             context_data['formset'] = VersionFormset(self.request.POST)
         else:
@@ -78,7 +78,9 @@ class ProductCreateView(CreateView):
         if formset.is_valid():
             formset.instance = self.object
             formset.save()
-        return super().form_valid(form)
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class ProductUpdateView(UpdateView):
@@ -90,7 +92,8 @@ class ProductUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
+                                               formset=BaseVersionInlineFormSet, extra=1)
         if self.request.method == 'POST':
             context_data['formset'] = VersionFormset(self.request.POST, instance=self.object)
         else:
@@ -103,10 +106,9 @@ class ProductUpdateView(UpdateView):
         if formset.is_valid():
             formset.instance = self.object
             formset.save()
+            return super().form_valid(form)
         else:
             return self.form_invalid(form)
-
-        return super().form_valid(form)
 
 
 class ProductDeleteView(DeleteView):
