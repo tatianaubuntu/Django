@@ -5,6 +5,16 @@ from .models import Product, Version
 
 
 class ProductForm(ModelForm):
+    forbidden_words = ['казино',
+                       'криптовалюта',
+                       'крипта',
+                       'биржа',
+                       'дешево',
+                       'бесплатно',
+                       'обман',
+                       'полиция',
+                       'радар']
+
     class Meta:
         model = Product
         fields = [
@@ -17,17 +27,7 @@ class ProductForm(ModelForm):
 
     def clean_name(self):
         cleaned_data = self.cleaned_data.get('name')
-        forbidden_words = ['казино',
-                           'криптовалюта',
-                           'крипта',
-                           'биржа',
-                           'дешево',
-                           'бесплатно',
-                           'обман',
-                           'полиция',
-                           'радар']
-
-        for forbidden_word in forbidden_words:
+        for forbidden_word in self.forbidden_words:
             if forbidden_word in cleaned_data.lower():
                 raise forms.ValidationError('Присутствует запрещенное слово')
 
@@ -35,17 +35,7 @@ class ProductForm(ModelForm):
 
     def clean_description(self):
         cleaned_data = self.cleaned_data.get('description')
-        forbidden_words = ['казино',
-                           'криптовалюта',
-                           'крипта',
-                           'биржа',
-                           'дешево',
-                           'бесплатно',
-                           'обман',
-                           'полиция',
-                           'радар']
-
-        for forbidden_word in forbidden_words:
+        for forbidden_word in self.forbidden_words:
             if forbidden_word in cleaned_data.lower():
                 raise forms.ValidationError('Присутствует запрещенное слово')
 
@@ -57,10 +47,9 @@ class VersionForm(ModelForm):
         model = Version
         fields = '__all__'
 
-    def clean_is_active(self):
-        cleaned_data = self.cleaned_data.get('is_active')
-        version = Version.objects.filter(is_active=True).first()
-        if cleaned_data and version.is_active:
-            raise forms.ValidationError('Активная версия уже существует')
-
-        return cleaned_data
+    # def clean_is_active(self):
+    #     cleaned_data = self.cleaned_data.get('is_active')
+    #     version = Version.objects.filter(product=self.cleaned_data.get('product'), is_active=True).exists()
+    #     if cleaned_data and version:
+    #         raise forms.ValidationError('Активная версия уже существует')
+    #     return cleaned_data

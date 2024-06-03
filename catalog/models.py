@@ -65,10 +65,10 @@ class Version(models.Model):
         verbose_name = 'версия'
         verbose_name_plural = 'версии'
 
-    # def clean(self):
-    #     if self.is_active and Version.objects.filter(product=self.product, is_active=True).exists():
-    #         raise ValidationError('Only one active version is allowed per product.')
-    #
-    # def save(self, *args, **kwargs):
-    #     self.clean()
-    #     super().save(*args, **kwargs)
+    def clean(self):
+        if self.is_active and Version.objects.filter(product=self.product, is_active=True).exists():
+            raise ValidationError('Для каждого продукта разрешена только одна активная версия.')
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
