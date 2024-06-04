@@ -17,12 +17,13 @@
             <div class="col-2">
             </div>
             <div class="col-4">
+                {{formset.non_form_errors }}
                 {{ formset.management_form }}
                 {% for form in formset.forms %}
-                {{ form|crispy }}
+                    {{ form|crispy }}
+<!--                    {{ form.non_field_errors }}-->
                 <br><br>
                 {% endfor %}
-
             </div>
         </div>
     </div>
