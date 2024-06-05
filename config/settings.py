@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap4',
 
     'catalog',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+AUTH_USER_MODEL = 'users.User'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
