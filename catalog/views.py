@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import inlineformset_factory
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -40,11 +41,13 @@ class ContactTemplateView(TemplateView):
         return super().get_context_data(**kwargs)
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     extra_context = {
         'title': 'О продукте'
     }
+    login_url = 'users:login'
+    redirect_field_name = 'redirect_to'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -58,7 +61,7 @@ class ProductDetailView(DetailView):
         return context
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(CreateView, LoginRequiredMixin):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:home')
@@ -76,6 +79,9 @@ class ProductCreateView(CreateView):
     def form_valid(self, form):
         formset = self.get_context_data()['formset']
         self.object = form.save()
+        user = self.request.user
+        self.object.owner = user
+        self.object.save()
         if formset.is_valid():
             formset.instance = self.object
             formset.save()
@@ -84,7 +90,7 @@ class ProductCreateView(CreateView):
             return self.form_invalid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(UpdateView, LoginRequiredMixin):
     model = Product
     form_class = ProductForm
 
@@ -116,7 +122,7 @@ class ProductUpdateView(UpdateView):
                                                formset=BaseVersionInlineFormSet, extra=1)
         if request.method == 'POST':
             form = self.form_class(request.POST, request.FILES)
-            formset = VersionFormset(request.POST)
+            formset = VersionFormset(request.POST, instance=self.object)
 
             if form.is_valid() and formset.is_valid():
                 form.save()
@@ -124,7 +130,7 @@ class ProductUpdateView(UpdateView):
                 return redirect('get_success_url')
         else:
             form = ProductForm()
-            formset = VersionFormset()
+            formset = VersionFormset(instance=self.object)
 
         context = {
             'form': form,
@@ -133,7 +139,7 @@ class ProductUpdateView(UpdateView):
         return render(request, 'catalog/product_form.html', context)
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(DeleteView, LoginRequiredMixin):
     model = Product
     success_url = reverse_lazy('catalog:home')
 

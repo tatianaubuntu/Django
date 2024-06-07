@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.forms import BaseInlineFormSet
 
+
 NULLABLE = {'null': True, 'blank': True}
 
 
@@ -26,7 +27,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='дата создания')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='дата последнего изменения')
 
-    # manufactured_at = models.DateTimeField(default='1000-01-01', verbose_name='дата производства продукта')
+    owner = models.ForeignKey('users.User', on_delete=models.SET_NULL, help_text='Укажите владельца', **NULLABLE)
 
     def __str__(self):
         return f'{self.name}'
