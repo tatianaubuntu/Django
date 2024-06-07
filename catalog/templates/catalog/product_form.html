@@ -11,17 +11,27 @@
             {% load crispy_forms_tags %}
             <div class="col-4">
                 {% csrf_token %}
-                {{ form|crispy }}<br>
+                {{ form|crispy }}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+                <br>
                 <button class="p-2 btn btn-outline-primary" type="submit">добавить продукт</button>
             </div>
             <div class="col-2">
             </div>
             <div class="col-4">
-                {{formset.non_form_errors }}
+                {{ formset.non_form_errors }}
                 {{ formset.management_form }}
                 {% for form in formset.forms %}
                     {{ form|crispy }}
-<!--                    {{ form.non_field_errors }}-->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
                 <br><br>
                 {% endfor %}
             </div>

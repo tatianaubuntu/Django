@@ -64,4 +64,4 @@ class BaseVersionInlineFormSet(BaseInlineFormSet):
             if not form.cleaned_data.get('DELETE', False) and form.cleaned_data.get('is_active', False):
                 active_count += 1
         if active_count > 1:
-            raise forms.ValidationError('Может быть только одна активная версия.')
+            raise ValidationError('Может быть только одна активная версия.')
