@@ -44,19 +44,19 @@ def email_verification(request, token):
 class GeneratePasswordView(PasswordResetView):
     form_class = PasswordResetForm
     template_name = 'users/generate.html'
-    success_url = reverse_lazy('users:login')
 
     def form_valid(self, form):
-        email = form.cleaned_data['email']
-        user = User.objects.get(email=email)
-        if user:
-            password = User.objects.make_random_password(12)
-            user.set_password(password)
-            user.save()
-            send_mail(
-                'Смена пароля Skystore',
-                f'Ваш новый пароль: {password}',
-                settings.EMAIL_HOST_USER,
-                [user.email],
-            )
-        return super().form_valid(form)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.get(email=email)
+            if user:
+                password = User.objects.make_random_password(12)
+                user.set_password(password)
+                user.save()
+                send_mail(
+                    'Смена пароля Skystore',
+                    f'Ваш новый пароль: {password}',
+                    settings.EMAIL_HOST_USER,
+                    [user.email],
+                    )
+            return redirect(reverse("users:login"))
