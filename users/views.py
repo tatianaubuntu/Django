@@ -55,9 +55,8 @@ class GeneratePasswordView(PasswordResetView):
             user.save()
             send_mail(
                 'Смена пароля Skystore',
-                f'Ваш новый пароль: {user.password}',
+                f'Ваш новый пароль: {password}',
                 settings.EMAIL_HOST_USER,
                 [user.email],
             )
-
-            return super().form_valid(form)
+        return super().form_valid(form)
