@@ -96,47 +96,47 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
 
     def get_success_url(self):
         return reverse('catalog:product', args=[self.kwargs.get('pk')])
-    #
-    # def get_context_data(self, **kwargs):
-    #     context_data = super().get_context_data(**kwargs)
-    #     VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
-    #                                            formset=BaseVersionInlineFormSet, extra=1)
-    #     if self.request.method == 'POST':
-    #         context_data['formset'] = VersionFormset(self.request.POST, self.request.FILES, instance=self.object)
-    #     else:
-    #         context_data['formset'] = VersionFormset(instance=self.object)
-    #     return context_data
-    #
-    # def form_valid(self, form):
-    #     formset = self.get_context_data()['formset']
-    #     self.object = form.save()
-    #     if formset.is_valid():
-    #         formset.instance = self.object
-    #         formset.save()
-    #         return super().form_valid(form)
-    #     else:
-    #         return self.form_invalid(form)
 
-    def version_formset_view(self, request):
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
         VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
                                                formset=BaseVersionInlineFormSet, extra=1)
-        if request.method == 'POST':
-            form = self.form_class(request.POST, request.FILES)
-            formset = VersionFormset(request.POST, instance=self.object)
-
-            if form.is_valid() and formset.is_valid():
-                form.save()
-                formset.save()
-                return redirect('get_success_url')
+        if self.request.method == 'POST':
+            context_data['formset'] = VersionFormset(self.request.POST, self.request.FILES, instance=self.object)
         else:
-            form = ProductForm()
-            formset = VersionFormset(instance=self.object)
+            context_data['formset'] = VersionFormset(instance=self.object)
+        return context_data
 
-        context = {
-            'form': form,
-            'formset': formset,
-        }
-        return render(request, 'catalog/product_form.html', context)
+    def form_valid(self, form):
+        formset = self.get_context_data()['formset']
+        self.object = form.save()
+        if formset.is_valid():
+            formset.instance = self.object
+            formset.save()
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    # def version_formset_view(self, request):
+    #     VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
+    #                                            formset=BaseVersionInlineFormSet, extra=1)
+    #     if request.method == 'POST':
+    #         form = self.form_class(request.POST, request.FILES)
+    #         formset = VersionFormset(request.POST, instance=self.object)
+    #
+    #         if form.is_valid() and formset.is_valid():
+    #             form.save()
+    #             formset.save()
+    #             return redirect('get_success_url')
+    #     else:
+    #         form = ProductForm()
+    #         formset = VersionFormset(instance=self.object)
+    #
+    #     context = {
+    #         'form': form,
+    #         'formset': formset,
+    #     }
+    #     return render(request, 'catalog/product_form.html', context)
 
 
 class ProductDeleteView(DeleteView, LoginRequiredMixin):
