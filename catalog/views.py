@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 
-from catalog.forms import ProductForm, VersionForm, BaseVersionInlineFormSet
+from catalog.forms import ProductForm, VersionForm
 from catalog.models import Product, Blog, Version
 from pytils.translit import slugify
 
@@ -68,8 +68,7 @@ class ProductCreateView(CreateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
-                                               formset=BaseVersionInlineFormSet, extra=1)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
         if self.request.method == 'POST':
             context_data['formset'] = VersionFormset(self.request.POST)
         else:
@@ -99,10 +98,9 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
-                                               formset=BaseVersionInlineFormSet, extra=1)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
         if self.request.method == 'POST':
-            context_data['formset'] = VersionFormset(self.request.POST, self.request.FILES, instance=self.object)
+            context_data['formset'] = VersionFormset(self.request.POST, instance=self.object)
         else:
             context_data['formset'] = VersionFormset(instance=self.object)
         return context_data
@@ -111,32 +109,17 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
         formset = self.get_context_data()['formset']
         self.object = form.save()
         if formset.is_valid():
-            formset.instance = self.object
-            formset.save()
-            return super().form_valid(form)
-        else:
-            return self.form_invalid(form)
-
-    # def version_formset_view(self, request):
-    #     VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
-    #                                            formset=BaseVersionInlineFormSet, extra=1)
-    #     if request.method == 'POST':
-    #         form = self.form_class(request.POST, request.FILES)
-    #         formset = VersionFormset(request.POST, instance=self.object)
-    #
-    #         if form.is_valid() and formset.is_valid():
-    #             form.save()
-    #             formset.save()
-    #             return redirect('get_success_url')
-    #     else:
-    #         form = ProductForm()
-    #         formset = VersionFormset(instance=self.object)
-    #
-    #     context = {
-    #         'form': form,
-    #         'formset': formset,
-    #     }
-    #     return render(request, 'catalog/product_form.html', context)
+            active_count = 0
+            for form in formset:
+                if not form.cleaned_data.get('is_active', False) and form.cleaned_data.get('DELETE', True):
+                    active_count += 1
+            if active_count > 1:
+                formset._non_form_errors.append('Не может быть более одной активной версии.')
+                return self.form_invalid(form)
+            else:
+                formset.instance = self.object
+                formset.save()
+                return redirect(self.get_success_url())
 
 
 class ProductDeleteView(DeleteView, LoginRequiredMixin):

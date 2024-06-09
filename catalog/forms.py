@@ -48,20 +48,21 @@ class VersionForm(ModelForm):
         model = Version
         fields = '__all__'
 
+
     # def clean_is_active(self):
     #     cleaned_data = self.cleaned_data.get('is_active')
     #     version = Version.objects.filter(product=self.cleaned_data.get('product'), is_active=True).exists()
     #     if cleaned_data and version:
     #         raise forms.ValidationError('Активная версия уже существует')
-    #     return cleaned_data
+    #     # return cleaned_data
 
 
-class BaseVersionInlineFormSet(BaseInlineFormSet):
-    def clean(self):
-        super().clean()
-        active_count = 0
-        for form in self.forms:
-            if not form.cleaned_data.get('DELETE', False) and form.cleaned_data.get('is_active', False):
-                active_count += 1
-        if active_count > 1:
-            raise ValidationError('Может быть только одна активная версия.')
+# class BaseVersionInlineFormSet(BaseInlineFormSet):
+#     def clean(self):
+#         super().clean()
+#         active_count = 0
+#         for form in self.forms:
+#             if not form.cleaned_data.get('DELETE', False) and form.cleaned_data.get('is_active', False):
+#                 active_count += 1
+#         if active_count > 1:
+#             raise ValidationError('Может быть только одна активная версия.')
