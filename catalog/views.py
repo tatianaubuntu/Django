@@ -53,7 +53,7 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         product = self.get_object()
         try:
-            version = Version.objects.get(product=product, is_active=True)
+            version = Version.objects.filter(product=product, is_active=True)
         except Version.DoesNotExist:
             version = None
 
@@ -111,15 +111,16 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
         if formset.is_valid():
             active_count = 0
             for form in formset:
-                if not form.cleaned_data.get('is_active', False) and form.cleaned_data.get('DELETE', True):
+                if not form.cleaned_data.get('is_active', False) and form.cleaned_data.get('DELETE', False):
                     active_count += 1
             if active_count > 1:
                 formset._non_form_errors.append('Не может быть более одной активной версии.')
                 return self.form_invalid(form)
-            else:
-                formset.instance = self.object
-                formset.save()
-                return redirect(self.get_success_url())
+            formset.instance = self.object
+            formset.save()
+            return redirect(self.get_success_url())
+        else:
+            return self.form_invalid(form)
 
 
 class ProductDeleteView(DeleteView, LoginRequiredMixin):
