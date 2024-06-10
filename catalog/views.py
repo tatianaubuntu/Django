@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 
-from catalog.forms import ProductForm, VersionForm
+from catalog.forms import ProductForm, VersionForm, BaseVersionInlineFormSet
 from catalog.models import Product, Blog, Version
 from pytils.translit import slugify
 
@@ -98,7 +98,8 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
+        VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
+                                               formset=BaseVersionInlineFormSet, extra=1)
         if self.request.method == 'POST':
             context_data['formset'] = VersionFormset(self.request.POST, instance=self.object)
         else:
@@ -109,18 +110,29 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
         formset = self.get_context_data()['formset']
         self.object = form.save()
         if formset.is_valid():
-            active_count = 0
-            for form in formset:
-                if not form.cleaned_data.get('is_active', False) and form.cleaned_data.get('DELETE', False):
-                    active_count += 1
-            if active_count > 1:
-                formset._non_form_errors.append('Не может быть более одной активной версии.')
-                return self.form_invalid(form)
             formset.instance = self.object
             formset.save()
-            return redirect(self.get_success_url())
+            return super().form_valid(form)
         else:
             return self.form_invalid(form)
+
+    # def form_valid(self, form):
+    #     formset = self.get_context_data()['formset']
+    #     self.object = form.save()
+    #     if formset.is_valid():
+    #         active_count = 0
+    #         for form in formset:
+    #             if not form.cleaned_data.get('is_active', False) and form.cleaned_data.get('DELETE', False):
+    #                 active_count += 1
+    #         if active_count > 1:
+    #             formset._non_form_errors.append('Не может быть более одной активной версии.')
+    #             return redirect('catalog:product_update', args=[self.kwargs.get('pk')])
+    #         else:
+    #             formset.instance = self.object
+    #             formset.save()
+    #             return redirect(self.get_success_url())
+    #     else:
+    #         return self.form_invalid(form)
 
 
 class ProductDeleteView(DeleteView, LoginRequiredMixin):
