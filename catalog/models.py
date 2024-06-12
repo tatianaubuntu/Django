@@ -29,12 +29,28 @@ class Product(models.Model):
 
     owner = models.ForeignKey('users.User', on_delete=models.SET_NULL, help_text='Укажите владельца', **NULLABLE)
 
+    is_published = models.BooleanField(default=False, verbose_name='опубликовано')
+
     def __str__(self):
         return f'{self.name}'
 
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
+        permissions = [
+            (
+              'off_published',
+              'can remove published'
+            ),
+            (
+                'change_description',
+                'can change description'
+            ),
+            (
+                'change_category',
+                'can change category'
+            )
+        ]
 
 
 class Blog(models.Model):

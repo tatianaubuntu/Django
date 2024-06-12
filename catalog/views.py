@@ -1,12 +1,15 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 
-from catalog.forms import ProductForm, VersionForm, BaseVersionInlineFormSet
+from catalog.forms import ProductForm, VersionForm, BaseVersionInlineFormSet, \
+    ProductModerator1Form, ProductModerator2Form
 from catalog.models import Product, Blog, Version
 from pytils.translit import slugify
+
 
 
 class ProductListView(ListView):
@@ -89,7 +92,7 @@ class ProductCreateView(CreateView, LoginRequiredMixin):
             return self.form_invalid(form)
 
 
-class ProductUpdateView(UpdateView, LoginRequiredMixin):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
 
@@ -115,6 +118,17 @@ class ProductUpdateView(UpdateView, LoginRequiredMixin):
             return super().form_valid(form)
         else:
             return self.form_invalid(form)
+
+    def get_form_class(self):
+        user = self.request.user
+        if user == self.object.owner or user.is_superuser:
+            return ProductForm
+        elif user.has_perm('catalog.off_published') and user.has_perm('catalog.change_description') and user.has_perm('catalog.change_category'):
+            if self.object.is_published:
+                return ProductModerator1Form
+            else:
+                return ProductModerator2Form
+        raise PermissionDenied
 
     # def form_valid(self, form):
     #     formset = self.get_context_data()['formset']

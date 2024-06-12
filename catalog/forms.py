@@ -43,6 +43,25 @@ class ProductForm(ModelForm):
         return cleaned_data
 
 
+class ProductModerator1Form(ModelForm):
+    class Meta:
+        model = Product
+        fields = [
+            'description',
+            'category',
+            'is_published',
+            ]
+
+
+class ProductModerator2Form(ModelForm):
+    class Meta:
+        model = Product
+        fields = [
+            'description',
+            'category',
+            ]
+
+
 class VersionForm(ModelForm):
     class Meta:
         model = Version
