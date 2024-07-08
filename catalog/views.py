@@ -11,7 +11,6 @@ from catalog.models import Product, Blog, Version
 from pytils.translit import slugify
 
 
-
 class ProductListView(ListView):
     model = Product
     extra_context = {
