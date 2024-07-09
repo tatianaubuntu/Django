@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
 from django.shortcuts import redirect, render, get_object_or_404
@@ -7,8 +9,10 @@ from django.views.generic import ListView, TemplateView, DetailView, CreateView,
 
 from catalog.forms import ProductForm, VersionForm, BaseVersionInlineFormSet, \
     ProductModerator1Form, ProductModerator2Form
-from catalog.models import Product, Blog, Version
+from catalog.models import Product, Blog, Version, Category
 from pytils.translit import slugify
+
+from catalog.services import get_cashe_category_list, get_cashe_product_list
 
 
 class ProductListView(ListView):
@@ -19,6 +23,7 @@ class ProductListView(ListView):
     paginate_by = 3
 
     def get_paginate_by(self, queryset):
+        """Возвращает список продуктов по страницам"""
         return self.request.GET.get('paginate_by', self.paginate_by)
 
     # def get_queryset(self, *args, **kwargs):
@@ -26,6 +31,13 @@ class ProductListView(ListView):
     #     queryset = queryset.filter(version__is_active=True)
     #
     #     return queryset
+
+    def get_context_data(self, **kwargs):
+        """Возвращает закешированный список продуктов,
+        описанный в сервисной функции get_cashe_product_list()"""
+        context_data = super().get_context_data(**kwargs)
+        context_data['products'] = get_cashe_product_list()
+        return context_data
 
 
 class ContactTemplateView(TemplateView):
@@ -213,3 +225,18 @@ class BlogUpdateView(UpdateView):
 class BlogDeleteView(DeleteView):
     model = Blog
     success_url = reverse_lazy('catalog:blogs')
+
+
+class CategoryListView(ListView):
+    """Контроллер списка категорий продуктов"""
+    model = Category
+    extra_context = {
+        'title': 'Категории'
+    }
+
+    def get_context_data(self, **kwargs):
+        """Возвращает закешированный список категорий,
+        описанный в сервисной функции get_cashe_category_list()"""
+        context_data = super().get_context_data(**kwargs)
+        context_data['categories'] = get_cashe_category_list()
+        return context_data
