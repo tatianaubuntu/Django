@@ -1,9 +1,6 @@
-from django.conf import settings
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.cache import cache
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
-from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView
 
@@ -16,6 +13,7 @@ from catalog.services import get_cashe_category_list, get_cashe_product_list
 
 
 class ProductListView(ListView):
+    """Контроллер списка продуктов"""
     model = Product
     extra_context = {
         'title': 'Главная страница'
@@ -26,12 +24,6 @@ class ProductListView(ListView):
         """Возвращает список продуктов по страницам"""
         return self.request.GET.get('paginate_by', self.paginate_by)
 
-    # def get_queryset(self, *args, **kwargs):
-    #     queryset = super().get_queryset(*args, **kwargs)
-    #     queryset = queryset.filter(version__is_active=True)
-    #
-    #     return queryset
-
     def get_context_data(self, **kwargs):
         """Возвращает закешированный список продуктов,
         описанный в сервисной функции get_cashe_product_list()"""
@@ -41,6 +33,7 @@ class ProductListView(ListView):
 
 
 class ContactTemplateView(TemplateView):
+    """Контроллер вывода информации о контактах"""
     template_name = 'catalog/contact.html'
     extra_context = {
         'title': 'Контакты'
@@ -56,6 +49,7 @@ class ContactTemplateView(TemplateView):
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
+    """Контроллер детализации продукта"""
     model = Product
     extra_context = {
         'title': 'О продукте'
@@ -64,6 +58,7 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
     redirect_field_name = 'redirect_to'
 
     def get_context_data(self, **kwargs):
+        """Возвращает отображение активных версий продукта"""
         context = super().get_context_data(**kwargs)
         product = self.get_object()
         try:
@@ -76,11 +71,13 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
 
 
 class ProductCreateView(CreateView, LoginRequiredMixin):
+    """Контроллер создания продукта"""
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:home')
 
     def get_context_data(self, **kwargs):
+        """Создание формсета версий продукта"""
         context_data = super().get_context_data(**kwargs)
         VersionFormset = inlineformset_factory(Product, Version, form=VersionForm, extra=1)
         if self.request.method == 'POST':
@@ -90,6 +87,7 @@ class ProductCreateView(CreateView, LoginRequiredMixin):
         return context_data
 
     def form_valid(self, form):
+        """Сохраняет формсет и текущего пользователя как владельца продукта"""
         formset = self.get_context_data()['formset']
         self.object = form.save()
         user = self.request.user
@@ -104,13 +102,16 @@ class ProductCreateView(CreateView, LoginRequiredMixin):
 
 
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
+    """Контроллер изменения продукта"""
     model = Product
     form_class = ProductForm
 
     def get_success_url(self):
+        """Направляет на указанную страницу если форма валидна"""
         return reverse('catalog:product', args=[self.kwargs.get('pk')])
 
     def get_context_data(self, **kwargs):
+        """Создание и изменение формсета версий продукта"""
         context_data = super().get_context_data(**kwargs)
         VersionFormset = inlineformset_factory(Product, Version, form=VersionForm,
                                                formset=BaseVersionInlineFormSet, extra=1)
@@ -121,6 +122,7 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         return context_data
 
     def form_valid(self, form):
+        """Сохраняет формсет версий продукта"""
         formset = self.get_context_data()['formset']
         self.object = form.save()
         if formset.is_valid():
@@ -131,6 +133,8 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
             return self.form_invalid(form)
 
     def get_form_class(self):
+        """Вывод формы по изменению продукта и его версии в соответствии
+        с правами пользователя"""
         user = self.request.user
         if user == self.object.owner or user.is_superuser:
             return ProductForm
@@ -141,31 +145,15 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
                 return ProductModerator2Form
         raise PermissionDenied
 
-    # def form_valid(self, form):
-    #     formset = self.get_context_data()['formset']
-    #     self.object = form.save()
-    #     if formset.is_valid():
-    #         active_count = 0
-    #         for form in formset:
-    #             if not form.cleaned_data.get('is_active', False) and form.cleaned_data.get('DELETE', False):
-    #                 active_count += 1
-    #         if active_count > 1:
-    #             formset._non_form_errors.append('Не может быть более одной активной версии.')
-    #             return redirect('catalog:product_update', args=[self.kwargs.get('pk')])
-    #         else:
-    #             formset.instance = self.object
-    #             formset.save()
-    #             return redirect(self.get_success_url())
-    #     else:
-    #         return self.form_invalid(form)
-
 
 class ProductDeleteView(DeleteView, LoginRequiredMixin):
+    """Контроллер удаления продукта"""
     model = Product
     success_url = reverse_lazy('catalog:home')
 
 
 class BlogListView(ListView):
+    """Контроллер списка блогов"""
     model = Blog
     extra_context = {
         'title': 'Блоги'
@@ -173,21 +161,25 @@ class BlogListView(ListView):
     paginate_by = 3
 
     def get_paginate_by(self, queryset):
+        """Возвращает список блогов по страницам"""
         return self.request.GET.get('paginate_by', self.paginate_by)
 
     def get_queryset(self, *args, **kwargs):
+        """Возвращает отфильрованный список блогов по публикации"""
         queryset = super().get_queryset(*args, **kwargs)
         queryset = queryset.filter(is_published=True)
         return queryset
 
 
 class BlogDetailView(DetailView):
+    """Контроллер детализации блога"""
     model = Blog
     extra_context = {
         'title': 'О блоге'
     }
 
     def get_object(self, queryset=None):
+        """Увеличивает количество просмотров"""
         self.object = super().get_object(queryset)
         self.object.views_count += 1
         self.object.save()
@@ -195,11 +187,13 @@ class BlogDetailView(DetailView):
 
 
 class BlogCreateView(CreateView):
+    """Контроллер создания блога"""
     model = Blog
     fields = ('title', 'body', 'preview')
     success_url = reverse_lazy('catalog:blogs')
 
     def form_valid(self, form):
+        """Добавляет слогифай наименованию блога"""
         if form.is_valid():
             new_blog = form.save()
             new_blog.slug = slugify(new_blog.title)
@@ -208,10 +202,12 @@ class BlogCreateView(CreateView):
 
 
 class BlogUpdateView(UpdateView):
+    """Контроллер изменения блога"""
     model = Blog
     fields = ('title', 'body', 'preview')
 
     def form_valid(self, form):
+        """Добавляет слогифай наименованию блога"""
         if form.is_valid():
             new_blog = form.save()
             new_blog.slug = slugify(new_blog.title)
@@ -219,10 +215,12 @@ class BlogUpdateView(UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
+        """Направляет на указанную страницу если форма валидна"""
         return reverse('catalog:blog', args=[self.kwargs.get('pk')])
 
 
 class BlogDeleteView(DeleteView):
+    """Контроллер удаления блога"""
     model = Blog
     success_url = reverse_lazy('catalog:blogs')
 
